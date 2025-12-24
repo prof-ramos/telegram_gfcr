@@ -1,20 +1,20 @@
 # 📱 Telegram GFCR
 
-**CLI Interativo para o Telegram** — Uma experiência de terminal inteligente inspirada no [Claude Code](https://docs.anthropic.com/en/docs/claude-code) e [Gemini CLI](https://github.com/google-gemini/gemini-cli), mas focada em gerenciar seus grupos, conversas e mídias do Telegram.
+**CLI Interativo para o Telegram** — Uma experiência de terminal inteligente inspirada no [Claude Code](https://docs.anthropic.com/en/docs/claude-code) e [Gemini CLI](https://github.com/google-gemini/gemini-cli), para gerenciar grupos, conversas e mídias do Telegram.
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │  🤖 Telegram GFCR v0.1.0                                        │
 │  Digite um comando ou use linguagem natural...                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  > liste meus grupos                                            │
+│  > list                                                         │
 │                                                                 │
 │  📂 Encontrados 12 grupos:                                      │
 │  ├── [1] Dev Brasil (1,234 mensagens)                           │
 │  ├── [2] Python BR (892 mensagens)                              │
 │  └── [3] ...                                                    │
 │                                                                 │
-│  > faça backup do grupo 1                                       │
+│  > backup 123456 --media                                        │
 │  ⏳ Baixando mensagens... ████████████░░░░░░░░ 60%              │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -24,21 +24,20 @@
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![UV](https://img.shields.io/badge/UV-Package_Manager-7C3AED?style=flat-square&logo=astral&logoColor=white)
 ![Telethon](https://img.shields.io/badge/Telethon-API-0088CC?style=flat-square&logo=telegram&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ---
 
 ## ✨ Funcionalidades
 
-| Funcionalidade | Descrição |
-|----------------|-----------|
-| � **Terminal Interativo** | Converse naturalmente — digite comandos ou pergunte em linguagem natural |
-| �📋 **Listar Entidades** | Visualize grupos, conversas e canais com IDs para fácil referência |
-| 💾 **Backup Completo** | Baixe conversas inteiras de forma organizada e cronológica |
-| 📤 **Encaminhamento** | Encaminhe mensagens para outro grupo como backup secundário |
-| 🚪 **Gestão Rápida** | Saia de múltiplos grupos com comandos simples |
-| 📊 **Metadados Locais** | Armazene e consulte histórico via SQLite |
+| Comando | Descrição |
+|---------|-----------|
+| `interactive` | Modo REPL com autocomplete e histórico |
+| `auth` | Autentica conta Telegram via SMS |
+| `list` | Lista grupos, conversas e canais |
+| `backup` | Faz backup de conversas (JSON + mídias) |
+| `forward` | Encaminha mensagens entre entidades |
+| `leave` | Sai de um grupo rapidamente |
 
 ---
 
@@ -47,143 +46,148 @@
 ### Pré-requisitos
 
 - **Python 3.12+**
-- **[UV](https://docs.astral.sh/uv/)** — Gerenciador de pacotes e ambientes Python ultrarrápido
-- Credenciais da API Telegram → [Obter aqui](https://my.telegram.org/apps)
+- **[UV](https://docs.astral.sh/uv/)** — Gerenciador de pacotes Python
+- Credenciais API Telegram → [my.telegram.org/apps](https://my.telegram.org/apps)
 
-### Instalando o UV
-
-```bash
-# macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# Ou via Homebrew
-brew install uv
-```
-
-### Configurando o Projeto
+### Setup Rápido
 
 ```bash
 # Clone o repositório
 git clone https://github.com/seu-usuario/telegram_gfcr.git
 cd telegram_gfcr
 
-# Sincronize dependências (cria venv automaticamente)
+# Instale dependências
 uv sync
 
-# Ative o ambiente virtual
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
+# Configure credenciais
+cp .env.example .env
+# Edite .env com seu API_ID e API_HASH
 ```
 
 ---
 
 ## ⚙️ Configuração
 
-Crie um arquivo `.env` na raiz do projeto:
+Edite o arquivo `.env`:
 
 ```env
-TELEGRAM_API_ID=seu_api_id
-TELEGRAM_API_HASH=seu_api_hash
+TELEGRAM_API_ID=12345678
+TELEGRAM_API_HASH=abcdef1234567890
 TELEGRAM_PHONE=+5511999999999
 ```
-
-> [!TIP]
-> Na primeira execução, você autenticará sua conta via código SMS/Telegram.
 
 ---
 
 ## 📖 Uso
 
-### Iniciando o Terminal Interativo
+### Modo Interativo (Recomendado)
 
 ```bash
-# Inicie o CLI interativo
-uv run telegram-gfcr
-
-# Ou, se o venv estiver ativo:
-telegram-gfcr
+uv run telegram-gfcr interactive
 ```
-
-### Dentro do Terminal
 
 ```text
-> ajuda                          # Exibe comandos disponíveis
-> listar grupos                  # Lista todos os grupos
-> backup grupo 123456            # Faz backup do grupo pelo ID
-> encaminhar 123 para 456        # Encaminha mensagens entre grupos
-> sair do grupo 789              # Sai de um grupo específico
-> /exit                          # Encerra o CLI
+🤖 Telegram GFCR v0.1.0
+Digite 'help' para ver comandos disponíveis
+
+telegram> list
+telegram> backup 123456 --media
+telegram> exit
 ```
 
-### Comandos Diretos (não-interativo)
+### Comandos Diretos
 
 ```bash
-uv run telegram-gfcr listar
-uv run telegram-gfcr backup --id 123456
-uv run telegram-gfcr sair --id 789
+# Autenticar
+uv run telegram-gfcr auth +5511999999999
+
+# Listar entidades
+uv run telegram-gfcr list --type groups
+
+# Fazer backup
+uv run telegram-gfcr backup 123456 --media
+
+# Encaminhar mensagens
+uv run telegram-gfcr forward 123 456 --limit 50
+
+# Sair de grupo
+uv run telegram-gfcr leave 789 --yes
 ```
 
 ---
 
-## 🛠️ Stack Tecnológica
+## 🛠️ Stack
 
 | Tecnologia | Propósito |
 |------------|-----------|
-| [UV](https://docs.astral.sh/uv/) | Gerenciamento de pacotes e ambientes Python |
-| [Telethon](https://docs.telethon.dev/) | Interação com a API do Telegram |
-| [Rich](https://rich.readthedocs.io/) | Interface de terminal rica e colorida |
-| [Prompt Toolkit](https://python-prompt-toolkit.readthedocs.io/) | Input interativo com autocomplete |
-| [SQLite](https://www.sqlite.org/) | Armazenamento local de metadados |
+| [UV](https://docs.astral.sh/uv/) | Gerenciamento de pacotes |
+| [Typer](https://typer.tiangolo.com/) | Framework CLI |
+| [Rich](https://rich.readthedocs.io/) | Output visual |
+| [Prompt Toolkit](https://python-prompt-toolkit.readthedocs.io/) | REPL interativo |
+| [Telethon](https://docs.telethon.dev/) | API Telegram |
+| [Pydantic](https://docs.pydantic.dev/) | Configuração |
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Estrutura
 
 ```text
 telegram_gfcr/
-├── src/
-│   └── telegram_gfcr/
-│       ├── __init__.py
-│       ├── main.py         # Entry point e REPL interativo
-│       ├── commands.py     # Handlers de comandos
-│       ├── client.py       # Wrapper Telethon
-│       ├── database.py     # Operações SQLite
-│       ├── ui.py           # Componentes Rich/Prompt Toolkit
-│       └── utils.py        # Funções auxiliares
+├── src/telegram_gfcr/
+│   ├── cli.py           # Entry point Typer
+│   ├── interactive.py   # REPL prompt_toolkit
+│   ├── config.py        # Pydantic settings
+│   ├── core/
+│   │   └── client.py    # Wrapper Telethon
+│   └── commands/        # auth, list, backup, forward, leave
 ├── tests/
-├── .env.example
 ├── pyproject.toml
-└── README.md
+├── Dockerfile
+└── .env.example
 ```
 
 ---
 
-## 🤝 Contribuindo
+## 🐳 Docker
 
-Contribuições são bem-vindas! Por favor:
+```bash
+# Build
+docker build -t telegram-gfcr .
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'Add: nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+# Run interativo
+docker run --rm -it \
+  -e TELEGRAM_API_ID=123 \
+  -e TELEGRAM_API_HASH=abc \
+  -v ~/.config/telegram-gfcr:/root/.config/telegram-gfcr \
+  telegram-gfcr interactive
+```
+
+---
+
+## 🧪 Desenvolvimento
+
+```bash
+# Rodar testes
+uv run pytest tests/ -v
+
+# Lint
+uv run ruff check src/
+
+# Type check
+uv run mypy src/
+```
 
 ---
 
 ## 📝 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+MIT License - Veja [LICENSE](LICENSE) para detalhes.
 
 ---
 
 ## ⚠️ Aviso Legal
 
-Este projeto é apenas para uso pessoal e educacional. Respeite os [Termos de Serviço do Telegram](https://telegram.org/tos) ao utilizar esta ferramenta. O uso indevido da API pode resultar em banimento da sua conta.
-
----
+Uso pessoal e educacional. Respeite os [Termos de Serviço do Telegram](https://telegram.org/tos).
 
 ---
 

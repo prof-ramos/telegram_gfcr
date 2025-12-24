@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(context7)",
+      "Skill(mgrep)",
+      "Bash(python3:*)",
+      "WebSearch"
+    ]
+  }
+}
